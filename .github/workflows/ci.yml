@@ -1,0 +1,42 @@
+name: Validate foundation
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  ruby:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        ruby: ['2.7', '3.2', '3.3']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+      - run: gem install minitest -v 5.25.5 --no-document
+      - run: ruby scripts/check_syntax.rb
+      - run: ruby -Itest -e 'Dir["test/*_test.rb"].sort.each { |f| require_relative f }'
+  javascript-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: node --check jp_exporter_layout/ui/preview.js
+      - run: node --test test/*_test.js
+      - run: python3 scripts/validate_package.py
+      - run: python3 scripts/static_check.py
+      - run: python3 -m unittest discover -s test -p '*_test.py'
+  ruby-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+      - run: gem install rubocop -v 1.39.0 --no-document
+      - run: rubocop

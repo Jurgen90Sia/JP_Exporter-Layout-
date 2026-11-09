@@ -1,0 +1,10 @@
+AllCops:
+  TargetRubyVersion: 2.7
+  NewCops: disable
+  DisabledByDefault: true
+  Exclude:
+    - 'vendor/**/*'
+Lint:
+  Enabled: true
+Lint/ConstantDefinitionInBlock:
+  Enabled: false
