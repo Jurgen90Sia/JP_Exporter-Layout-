@@ -48,10 +48,10 @@ or runtime Ruby gems are needed. Install test tooling with
 `gem install minitest -v 5.25.5 --no-document`.
 
 ```sh
-ruby -Itest -e 'Dir["test/*_test.rb"].sort.each { |f| require_relative f }'
-node --test test/*_test.js
-python3 scripts/validate_package.py
-python3 scripts/static_check.py
+ruby -Itest -e 'Dir["test/*_test.rb"].sort.each { |f| require File.expand_path(f) }'
+node --test test/ui_test.js
+python scripts/validate_package.py
+python scripts/static_check.py
 ```
 
 Run packaging regression tests with `python3 -m unittest discover -s test -p "*_test.py"`.

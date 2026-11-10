@@ -46,6 +46,15 @@ Environment: Windows, portable Ruby 3.3.10, Node test runner, Python 3.12, ezdxf
 | New code review | Independent reviewer reproduced two occlusion precision failures; regression tests then passed after local-coordinate/tolerance corrections; isometric dimensions rejected |
 | Ruby 2.7/3.2 execution and GitHub Actions | Not run locally; existing matrix retained, Windows packaging and independent DXF CI added; remote execution not yet established here |
 
+Remote follow-up: the first published workflow confirmed Ruby 3.2/3.3, lint,
+Linux JS/package and independent DXF success. Ruby 2.7 failed in the historical
+`require_relative` test launcher under `-e` (`cannot infer basepath`), and Windows
+Node 20 failed because PowerShell did not expand the literal test glob. These
+launch commands were corrected to require absolute file paths and name the current
+JS suite explicitly. Subsequent final workflow results are recorded in the
+delivered CI-status artifact; these launcher failures are not hidden or counted
+as host compatibility results.
+
 Initial failures were observed and repaired: Windows manifest separators; unsupported symlink fixture capability; missing DXF layer-table handle; new feature tests before implementation; edge-on triangle false occlusion; large-coordinate coplanar false occlusion; isometric dimension ambiguity; supplementary Unicode DXF escaping; inconsistent imported dimension values/text. No unresolved local automated test failure remains. One unavailable symlink test remains skipped.
 
 ## Real SketchUp and LayOut runtime status

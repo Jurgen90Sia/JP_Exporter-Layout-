@@ -15,7 +15,7 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
       - run: gem install minitest -v 5.25.5 --no-document
       - run: ruby scripts/check_syntax.rb
-      - run: ruby -Itest -e 'Dir["test/*_test.rb"].sort.each { |f| require_relative f }'
+      - run: ruby -Itest -e 'Dir["test/*_test.rb"].sort.each { |f| require File.expand_path(f) }'
   javascript-and-package:
     strategy:
       matrix:
@@ -30,10 +30,10 @@ jobs:
         with:
           python-version: '3.x'
       - run: node --check jp_exporter_layout/ui/preview.js
-      - run: node --test test/*_test.js
-      - run: python3 scripts/validate_package.py
-      - run: python3 scripts/static_check.py
-      - run: python3 -m unittest discover -s test -p '*_test.py'
+      - run: node --test test/ui_test.js
+      - run: python scripts/validate_package.py
+      - run: python scripts/static_check.py
+      - run: python -m unittest discover -s test -p '*_test.py'
   independent-dxf:
     runs-on: ubuntu-latest
     steps:
