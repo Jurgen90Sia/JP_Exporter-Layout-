@@ -4,10 +4,10 @@ Denominator: six official LU capability headings in command-inventory.md. COMPLE
 
 | Verified LU capability | JP module/UI | Status | Tests / runtime / limitations |
 |---|---|---|---|
-| Technical view set | core.rb, preview | PARTIAL | Six orthographic wireframes; missing sections/perspective/occlusion; existing host test reported by owner without exact version fixture record |
+| Technical view set | core.rb, projection/hidden_line.rb, preview | PARTIAL | Six orthographic + iso; optional opaque intervals; missing sections/perspective/full classification; new host runtime blocked |
 | Native LayOut viewports | Missing | MISSING | No editable linked document produced |
 | Automatic scale and layout | Missing | MISSING | SVG fit-to-screen is not paper scale/layout |
-| Automatic dimensions | Drawing preview service planned | MISSING | Preview dimensions do not satisfy native LayOut outcome |
+| Automatic dimensions | dimensions/overall.rb, preview checkbox | PARTIAL | Orthographic overall graphics implemented; do not satisfy native LayOut outcome |
 | Batch export | Missing | MISSING | Combined selection extraction is not per-object batch documents |
 | LayOut file and PDF | Missing | MISSING | No output validated |
 

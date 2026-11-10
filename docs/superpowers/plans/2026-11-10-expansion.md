@@ -31,3 +31,5 @@ Negative/mirrored coordinates; singular projected spans; invalid UI data; atomic
 
 ## Progress
 Baseline: JS 8 pass, package/static checks pass; Python one path failure and one symlink privilege error on Windows. Standalone Ruby initially absent; portable toolchain being prepared. SketchUp 2021 installed, initial window capture timed out. No new runtime PASS asserted.
+
+Tasks 1–7 executed for the bounded drawing-tools slice; see execution-report.md for exact results. Task 8 progressed with optional triangulation and true opaque depth intervals. Sections, paper sheets and native integration remain outstanding; the master objective is not marked complete. Rulings: no projected isometric dimensions; explicit skip when Windows forbids symlinks; no host compatibility claim after capture failures. Reviewer regressions for edge-on and translated coplanar faces were reproduced then repaired. No external toolchain files enter the package.

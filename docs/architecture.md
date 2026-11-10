@@ -1,6 +1,10 @@
 # Technical architecture and contracts
 
-Status: foundation plus extraction → orthographic wireframe → SVG implemented.
+Status 0.2: foundation plus extraction → orthographic/isometric drawing → SVG;
+optional opaque-triangle hidden-line intervals, overall dimension graphics, DXF
+LINE/TEXT and drawing snapshots implemented. Original wireframe defaults remain.
+The detailed planned sections below describe the full target; they do not imply
+that the limited 0.2 services satisfy all those requirements. See execution-report.md.
 Everything marked **planned** is a specification, not a shipped capability.
 This is an original implementation informed by general technical drawing workflows.
 
