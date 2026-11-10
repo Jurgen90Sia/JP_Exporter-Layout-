@@ -9,10 +9,13 @@ module JPExporter
         def initialize(max_edges = 20_000)
           @max_edges = max_edges
         end
-        def call(entities, root_transform)
+        def call(entities, root_transform, include_faces: false)
           @edges, @seen, @visited = [], {}, 0
+          @include_faces, @triangles, @seen_faces = include_faces, [], {}
           walk(entities, root_transform, [], [])
-          { units: 'mm', edges: @edges }
+          result = { units: 'mm', edges: @edges }
+          result[:triangles] = @triangles if include_faces
+          result
         end
         private
         def walk(entities, transform, path, ancestors)
@@ -27,6 +30,7 @@ module JPExporter
             when Sketchup::Edge
               add_edge(entity, transform, path)
             when Sketchup::Face
+              add_face(entity, transform, path) if @include_faces
               walk(entity.edges, transform, path, ancestors)
             when Sketchup::Group, Sketchup::ComponentInstance
               definition = entity.definition
@@ -34,6 +38,20 @@ module JPExporter
               children = entity.is_a?(Sketchup::Group) ? entity.entities : definition.entities
               walk(children, transform * entity.transformation, path + [entity.entityID], ancestors + [definition.object_id])
             end
+          end
+        end
+        def add_face(face, transform, path)
+          key = (path + [face.entityID]).join('/')
+          return if @seen_faces[key]
+          @seen_faces[key] = true
+          mesh = face.mesh(0)
+          mesh.polygons.each do |polygon|
+            raise ValidationError, 'Face triangulation returned a non-triangle.' unless polygon.length == 3
+            raise ValidationError, 'Selection exceeds 40,000 face triangles.' if @triangles.length >= 40_000
+            points = polygon.map do |index|
+              mesh.point_at(index.abs).transform(transform).to_a.map { |v| v.to_f * INCH_TO_MM }
+            end
+            @triangles << {id:key,points:points}
           end
         end
         def tag_visible?(tag)

@@ -3,6 +3,19 @@ require_relative 'support/sketchup_mock'
 require_relative '../jp_exporter_layout/geometry/extractor'
 require_relative '../jp_exporter_layout/core'
 class ExtractionTest < Minitest::Test
+  def test_face_mesh_is_optional_and_transformed_once_with_mirrored_instances
+    face = Sketchup::Face.new([])
+    face.define_singleton_method(:entityID) { 80 }
+    mesh = Object.new
+    mesh.define_singleton_method(:polygons) { [[1,-2,3]] }
+    mesh.define_singleton_method(:point_at) { |i| Geom::Point.new(*[[0,0,0],[1,0,0],[0,1,0]][i-1]) }
+    face.define_singleton_method(:mesh) { |_flags| mesh }
+    instance = Sketchup::ComponentInstance.new(2,Sketchup::Definition.new([face]),Geom::Transformation.new([-1,2,1],[10,0,0]))
+    s = JPExporter::Layout::Geometry::Extractor.new.call([instance],Geom::Transformation.new,include_faces:true)
+    assert_equal 1,s[:triangles].length
+    assert_equal [[254.0,0.0,0.0],[228.6,0.0,0.0],[254.0,50.8,0.0]],s[:triangles][0][:points]
+    refute extract([instance]).key?(:triangles)
+  end
   def edge(id = 1)
     Sketchup::Edge.new(id, [0,0,0], [1,2,3])
   end

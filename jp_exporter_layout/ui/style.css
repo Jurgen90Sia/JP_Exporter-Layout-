@@ -90,6 +90,9 @@ svg {
   stroke-width:1.3;
   fill:none;
 }
+.dimension { stroke:#28788c; stroke-width:1; }
+.hidden-line { stroke:#8193a0; stroke-dasharray:4 3; stroke-width:1; }
+.dimension-text { fill:#172a3b; stroke:none; font-family:system-ui,sans-serif; }
 footer {
   padding:12px 28px;
   border-top:1px solid #d5dde5;

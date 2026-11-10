@@ -1,5 +1,7 @@
 # Projection
 
-Future isometric basis, clipping and hidden-line services. Current orthographic core is ../core.rb.
+core.rb implements six orthographic bases and an orthonormal isometric basis.
+hidden_line.rb splits projected segments against opaque triangle intervals/depth.
+It has a bounded work budget and no transparency or complete edge classification.
 
-Specification only; no implementation is claimed.
+Section clipping and perspective remain planned.

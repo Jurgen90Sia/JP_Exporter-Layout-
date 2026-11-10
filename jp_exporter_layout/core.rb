@@ -8,7 +8,9 @@ module JPExporter
       VIEWS = {
         'front' => [[1,0,0],[0,0,1]], 'rear' => [[-1,0,0],[0,0,1]],
         'left' => [[0,-1,0],[0,0,1]], 'right' => [[0,1,0],[0,0,1]],
-        'top' => [[1,0,0],[0,1,0]], 'bottom' => [[1,0,0],[0,-1,0]]
+        'top' => [[1,0,0],[0,1,0]], 'bottom' => [[1,0,0],[0,-1,0]],
+        'isometric' => [[1.0/Math.sqrt(2),-1.0/Math.sqrt(2),0],
+                        [-1.0/Math.sqrt(6),-1.0/Math.sqrt(6),2.0/Math.sqrt(6)]]
       }.freeze
       EPSILON_MM = 0.000001
       module_function

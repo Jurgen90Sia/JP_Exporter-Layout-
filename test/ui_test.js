@@ -25,7 +25,9 @@ function fakeDocument() {
     set textContent(value) { this.text = value; this.children = []; }
     get textContent() { return this.text; }
   }
-  const elements = Object.fromEntries(['preview','status','drawing','view'].map(id=>[id,new Element()]));
+  const elements = Object.fromEntries(['preview','status','drawing','view','dimensions','scale','render_mode','export_dxf','save_snapshot','open_snapshot','fit'].map(id=>[id,new Element()]));
+  elements.scale.value = '1';
+  elements.render_mode.value = 'wireframe';
   return {getElementById:id=>elements[id],createDocumentFragment:()=>new Element(),createElementNS:()=>new Element()};
 }
 test('click sends versioned request and response creates SVG geometry', () => {
@@ -79,4 +81,45 @@ test('bridge exception clears earlier drawing', () => {
   doc.getElementById('preview').click();
   assert.equal(doc.getElementById('drawing').children.length,0);
   assert.equal(doc.getElementById('status').textContent,'Unavailable');
+});
+
+test('dimension checkbox includes physical scale and renders measured annotation', () => {
+  const doc = fakeDocument();
+  doc.getElementById('dimensions').checked = true;
+  doc.getElementById('scale').value = '0.1';
+  let sent;
+  const controller = preview.mount(doc,{preview:value=>{sent=JSON.parse(value);}});
+  doc.getElementById('preview').click();
+  assert.equal(sent.dimensions,true);
+  assert.equal(sent.scale,0.1);
+  controller.receive({ok:true,drawing:{units:'mm',view:'front',bounds:[0,0,600,800],
+    edges:[{points:[[0,0],[600,800]]}],dimensions:[{type:'dimension',axis:'horizontal',value_mm:600,
+      text:'600 mm', anchors:[[0,0],[600,0]],line:[[0,-100],[600,-100]],text_at:[300,-100]}]}});
+  assert.match(JSON.stringify(doc.getElementById('drawing').children),/600 mm/);
+  assert.equal(doc.getElementById('export_dxf').disabled,false);
+});
+test('export command uses registry and stays disabled before successful drawing', () => {
+  const doc = fakeDocument();
+  let sent;
+  const controller = preview.mount(doc,{command:value=>{sent=JSON.parse(value);}});
+  assert.equal(doc.getElementById('export_dxf').disabled,true);
+  controller.receive({ok:true,drawing:{units:'mm',view:'front',bounds:[0,0,1,1],edges:[{points:[[0,0],[1,1]]}]}});
+  doc.getElementById('export_dxf').click();
+  assert.equal(sent.command,'export_dxf');
+  controller.receive({ok:true,message:'Saved DXF.'});
+  assert.equal(doc.getElementById('status').textContent,'Saved DXF.');
+  assert.ok(doc.getElementById('drawing').children.length);
+});
+test('hidden line control reaches backend and hidden segments receive dashed class', () => {
+  const doc = fakeDocument();
+  doc.getElementById('render_mode').value = 'hidden';
+  let sent;
+  const controller = preview.mount(doc,{preview:value=>{sent=JSON.parse(value);}});
+  doc.getElementById('preview').click();
+  assert.equal(sent.render_mode,'hidden');
+  controller.receive({ok:true,drawing:{units:'mm',view:'front',render_mode:'hidden',bounds:[0,0,1,1],
+    edges:[{role:'hidden',points:[[0,0],[1,1]]}]}});
+  assert.equal(doc.getElementById('drawing').children[0].children[0].attrs.class,'hidden-line');
+  controller.receive({ok:false,error:'File unavailable',preserve_drawing:true});
+  assert.equal(doc.getElementById('drawing').children.length,1);
 });

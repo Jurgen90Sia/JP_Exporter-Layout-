@@ -8,7 +8,10 @@ REQUIRED = ["jp_exporter_layout.rb", "jp_exporter_layout/version.rb",
             "jp_exporter_layout/main.rb", "jp_exporter_layout/core.rb",
             "jp_exporter_layout/geometry/extractor.rb", "jp_exporter_layout/ui/dialog.rb",
             "jp_exporter_layout/ui/index.html", "jp_exporter_layout/ui/preview.js",
-            "jp_exporter_layout/ui/style.css", "jp_exporter_layout/diagnostics.rb"]
+            "jp_exporter_layout/ui/style.css", "jp_exporter_layout/diagnostics.rb",
+            "jp_exporter_layout/drawing.rb", "jp_exporter_layout/atomic_file.rb",
+            "jp_exporter_layout/dimensions/overall.rb", "jp_exporter_layout/exporters/dxf.rb",
+            "jp_exporter_layout/project_snapshot.rb", "jp_exporter_layout/projection/hidden_line.rb"]
 
 def validate(root):
     for name in REQUIRED:

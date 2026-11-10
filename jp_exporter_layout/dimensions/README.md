@@ -1,5 +1,6 @@
 # Dimensions
 
-Future associative manual and automatic dimension records and placement.
+overall.rb implements orthographic bounding-span graphics with model-mm values
+and paper-mm offsets. Not native LayOut, associative, manual or collision-aware.
 
-Specification only; no implementation is claimed.
+The full dimension engine remains planned; see docs/architecture.md.
