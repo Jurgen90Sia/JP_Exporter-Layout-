@@ -29,7 +29,7 @@ def validate(root):
     for asset in ['style.css', 'preview.js']:
         if asset not in (root / 'jp_exporter_layout/ui/index.html').read_text():
             raise ValueError("Missing UI asset reference: " + asset)
-    return [str(path.relative_to(root)) for path in files if path.is_file()]
+    return [path.relative_to(root).as_posix() for path in files if path.is_file()]
 
 if __name__ == '__main__':
     manifest = validate(ROOT)

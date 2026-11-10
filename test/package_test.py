@@ -28,7 +28,12 @@ class PackageTest(unittest.TestCase):
             validator.validate(self.root)
 
     def test_symlink_fails(self):
-        (self.root / 'jp_exporter_layout/external.rb').symlink_to('/tmp')
+        try:
+            (self.root / 'jp_exporter_layout/external.rb').symlink_to(self.root / 'missing.rb')
+        except OSError as error:
+            if getattr(error, 'winerror', None) == 1314:
+                self.skipTest('Windows symlink privilege unavailable (WinError 1314)')
+            raise
         with self.assertRaises(ValueError):
             validator.validate(self.root)
 
