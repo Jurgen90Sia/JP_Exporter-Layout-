@@ -1,7 +1,7 @@
 # JP Exporter Layout
 
 Original SketchUp extension foundation for technical drawing workflows.
-**Development version 0.2.0. Not a production release.** No proprietary plugin
+**Development version 0.3.0. Not a production release.** No proprietary plugin
 source, assets, or private formats are used.
 
 ## Working workflow
@@ -38,8 +38,34 @@ the displayed drawing and annotations. It does not retain model selection, sheet
 or associations; it is not the full project persistence system. File writes use a
 temporary sibling and replacement after success. **Fit drawing** restores framing.
 
-No source model modifications, sheets, PDF or native editable LayOut export exist
-yet. See docs/execution-report.md for evidence and remaining work.
+**Analyze current selection / Export material report JSON** read visible faces,
+groups and repeated component instances. Report front and back surface areas
+separately, in m² in the panel and mm² in JSON. Materials inherit through nested
+instances and active editing ancestors; explicit face paint takes precedence.
+Unpainted faces stay explicit. These are geometric surfaces, not purchasing
+quantities, panel nesting, solid volume or inferred furniture classifications.
+
+**Export current selection sheet SVG** writes front/right/top/isometric wireframe
+on one physical A0–A4 page. Choose orientation and automatic common scale or a
+fixed ratio. A fixed scale that cannot fit fails explicitly. Print at 100%.
+This combined-selection sheet has no dimensions, sections or source links.
+
+**Experimental · native LayOut + PDF** uses the official host API with selected
+groups/components only. Choose a parent folder; a uniquely named new package
+contains `drawing.layout`, `drawing.pdf`, `drawing_Data/*.skp` and a manifest.
+Each object gets one page with four parallel vector viewports and labels. A
+temporary wrapper definition preserves world placement and inherited paint;
+the operation is aborted and entity/definition IDs, selection, active path and
+modified flag are compared, including on failures. This is a limited state
+check, not proof of undo-history or complete metadata restoration. Existing
+export packages are never replaced. Keep the linked source folder alongside
+the document. Hard-link publication requires filesystem support.
+
+Native export has contract tests but **no actual SketchUp/LayOut runtime result
+yet**. Camera centering/cropping, PDF physical scale, native reopening and moved
+package references require verification. No native dimensions or sections yet.
+Preview/analysis/SVG never mutate the source model; native source export uses
+the temporary operation described above. See docs/development/continuation-status.md.
 
 ## Development
 

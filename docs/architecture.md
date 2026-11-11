@@ -214,3 +214,9 @@ supported OS/version records are in compatibility.md. Before release: owner-appr
 license, runtime matrix, UI lifecycle testing, performance benchmarks and verified
 package structure. Roadmap modules are directories with explicit scope documents,
 not empty classes pretending to implement functionality.
+# Current 0.3 addition
+
+See development/continuation-status.md for the implemented material adapter,
+physical paper planner/SVG exporter and experimental official native document
+adapter. The original 0.2 baseline and broader planned architecture follow;
+planned sections below do not supersede the current evidence/status table.

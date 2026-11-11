@@ -1,6 +1,8 @@
 # Verified reference capability inventory
 
-Exact visible command names: UNKNOWN (video unavailable). The names below are **official capability headings**, not invented button labels. All source URLs are in source-evidence.md.
+The original six entries below are official capability headings. Additional
+vendor feature labels and interactions are now sourced in video-workflows.md;
+these are not a complete menu inventory. All source URLs remain traceable.
 
 | Capability heading | Class | Input and sequence | Output/parameters | Host/native | Error evidence | Confidence |
 |---|---|---|---|---|---|---|
@@ -13,5 +15,5 @@ Exact visible command names: UNKNOWN (video unavailable). The names below are **
 | Complete projection set | CONFIRMED/CAD only | Select views | Front/back/left/right/top/bottom/isometric | 2D CAD | Not specified | High |
 | Cleaner hidden lines; Flexible edge filtering | CONFIRMED/CAD only | Set filtering | Mesh/simple/all edges, reduced rear edges | CAD projection | Model-quality dependent | High |
 | Scaled text and dimensions; DXF ready for editing | CONFIRMED/CAD only | Set ratio/options, export | Scaled annotations and editable DXF | CAD | Not specified | High |
-| Move section / hatch controls / manual dimension labels | UNKNOWN | Not established | Not established | Unknown | Unknown | Low |
-| Furniture classification and material statistics | JP ENHANCEMENT | JP specification | Heuristics with manual correction | JP | Not implemented | Requirement only |
+| Detail extraction / four display modes / hatch / manual annotations / doorless elevations / page arrangement | CONFIRMED/LU descriptions | See video-workflows.md | Detailed advertised workflows; sampled visuals only | SketchUp setup/LayOut | Not independently verified | Medium/high |
+| Furniture classification and material statistics | JP ENHANCEMENT | JP specification | Read-only visible face material areas implemented; classification remains missing | JP | Native validation pending | Contract tests only |

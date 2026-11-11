@@ -25,9 +25,10 @@ function fakeDocument() {
     set textContent(value) { this.text = value; this.children = []; }
     get textContent() { return this.text; }
   }
-  const elements = Object.fromEntries(['preview','status','drawing','view','dimensions','scale','render_mode','export_dxf','save_snapshot','open_snapshot','fit'].map(id=>[id,new Element()]));
+  const elements = Object.fromEntries(['preview','status','drawing','view','dimensions','scale','render_mode','export_dxf','save_snapshot','open_snapshot','fit','analyze_materials','export_materials','materials','export_sheet_svg','export_native','paper','orientation','sheet_scale'].map(id=>[id,new Element()]));
   elements.scale.value = '1';
   elements.render_mode.value = 'wireframe';
+  elements.paper.value = 'A3'; elements.orientation.value = 'landscape'; elements.sheet_scale.value = 'auto';
   return {getElementById:id=>elements[id],createDocumentFragment:()=>new Element(),createElementNS:()=>new Element()};
 }
 test('click sends versioned request and response creates SVG geometry', () => {
@@ -46,6 +47,41 @@ test('click sends versioned request and response creates SVG geometry', () => {
   controller.receive({ok:false,error:'Select geometry'});
   assert.equal(drawing.children.length,0);
   assert.equal(doc.getElementById('status').textContent,'Select geometry');
+});
+
+test('material commands read current selection without a drawing and render labels as text', () => {
+  const doc = fakeDocument();
+  let sent;
+  const controller = preview.mount(doc,{command:value=>{sent=JSON.parse(value);}});
+  assert.equal(doc.getElementById('analyze_materials').disabled,false);
+  doc.getElementById('analyze_materials').click();
+  assert.equal(sent.command,'analyze_materials');
+  controller.receive({ok:true,message:'Analysis complete.',analysis:{units:'mm',area_units:'mm2',
+    group_count:1,component_instance_count:2,face_count:6,front_area_mm2:1000000,
+    materials:[{name:'<Oak & veneer>',front_area_mm2:1000000,back_area_mm2:500000}]}});
+  assert.match(doc.getElementById('materials').textContent,/<Oak & veneer>/);
+  assert.match(doc.getElementById('materials').textContent,/1\.0000/);
+  assert.equal(doc.getElementById('preview').disabled,false);
+  controller.receive({ok:true,analysis:{units:'bad'}});
+  assert.match(doc.getElementById('status').textContent,/Invalid material/);
+  assert.equal(doc.getElementById('materials').textContent,'');
+});
+
+test('paper and native commands send shared paper options without needing a preview', () => {
+  const doc = fakeDocument();
+  let sent;
+  const controller = preview.mount(doc,{command:value=>{sent=JSON.parse(value);}});
+  doc.getElementById('paper').value = 'A4'; doc.getElementById('orientation').value = 'portrait';
+  for (const command of ['export_sheet_svg','export_native']) {
+    assert.equal(doc.getElementById(command).disabled,false);
+    doc.getElementById(command).click();
+    assert.deepEqual(sent,{schema_version:1,command:command,paper:'A4',orientation:'portrait',sheet_scale:'auto'});
+    controller.receive({ok:true,message:'Saved.'});
+  }
+  doc.getElementById('sheet_scale').value = '0.1';
+  doc.getElementById('export_sheet_svg').click();
+  assert.equal(sent.sheet_scale,0.1);
+  controller.receive({ok:true,message:'Saved.'});
 });
 test('missing bridge is actionable and does not disable button', () => {
   const doc = fakeDocument();

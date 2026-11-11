@@ -135,4 +135,49 @@ class HostTest < Minitest::Test
     end
     assert_equal false,file_command('not_a_command')['ok']
   end
+  def test_analysis_reads_current_selection_and_exports_json_without_a_drawing
+    result = file_command('analyze_materials')
+    assert result['ok'],result['error']
+    assert_equal 0,result['analysis']['face_count']
+    Dir.mktmpdir do |dir|
+      UI.jp_test_path = File.join(dir,'materials.json')
+      result = file_command('export_materials')
+      assert result['ok'],result['error']
+      report = JSON.parse(File.read(UI.jp_test_path))
+      assert_equal 'JP Exporter Layout',report['project']
+      assert_equal 'mm2',report['analysis']['area_units']
+    end
+    Sketchup.active_model.selection.clear
+    result = file_command('analyze_materials')
+    refute result['ok']
+    assert result['preserve_drawing']
+  end
+  def test_sheet_export_reads_current_selection_and_validates_paper_options
+    Dir.mktmpdir do |dir|
+      UI.jp_test_path = File.join(dir,'sheet.svg')
+      @dialog.callbacks.fetch('command').call(nil,JSON.generate(schema_version:1,command:'export_sheet_svg',paper:'A4',orientation:'portrait',sheet_scale:0.05))
+      assert File.file?(UI.jp_test_path),@dialog.scripts.last
+      assert_includes File.read(UI.jp_test_path),'width="210.0mm"'
+      UI.jp_test_path = File.join(dir,'bad.svg')
+      @dialog.callbacks.fetch('command').call(nil,JSON.generate(schema_version:1,command:'export_sheet_svg',paper:'bad'))
+      refute File.exist?(UI.jp_test_path)
+    end
+  end
+  def test_analysis_uses_nearest_painted_active_edit_ancestor
+    require_relative 'analysis_test'
+    d = JPExporter::Layout::AnalysisDoubles
+    face = d::Face.new(101)
+    model = Struct.new(:selection,:edit_transform,:active_path).new([face],Geom::Transformation.new,
+      [Struct.new(:material).new(d::Material.new(1,'Outer')),Struct.new(:material).new(d::Material.new(2,'Inner')),
+       Struct.new(:material).new(nil)])
+    Sketchup.active_model = model
+    assert_equal 'Inner',file_command('analyze_materials')['analysis']['materials'][0]['name']
+  end
+  def test_native_command_without_host_api_is_explicit_and_preserves_preview
+    request(JSON.generate(schema_version:1,view:'front'))
+    result = file_command('export_native')
+    refute result['ok']
+    assert_match(/native LayOut Ruby API/,result['error'])
+    assert result['preserve_drawing']
+  end
 end

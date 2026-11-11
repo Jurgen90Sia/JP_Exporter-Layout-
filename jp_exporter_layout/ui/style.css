@@ -113,3 +113,4 @@ footer {
     display:none;
   }
 }
+#materials { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: 12px; }

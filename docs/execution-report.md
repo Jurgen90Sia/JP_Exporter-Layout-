@@ -90,3 +90,9 @@ Research/audit/plan/report documents added under docs; core, extractor, preview/
 Development RBZ and full source ZIP are built only after the above available checks pass; their integrity and exact filenames are recorded with the delivered artifacts. No official GitHub release is created. Licensing selection remains pending.
 
 Strict verified LU parity remains **0/6 = 0%** because none of the six full reference outcomes meets every native/runtime acceptance gate. Partial useful functionality is recorded above and must not be counted as complete parity.
+# Current continuation
+
+Version 0.3.0 adds material analysis, physical SVG paper sheets and an experimental
+native batch LayOut/PDF adapter. See development/continuation-status.md for current
+code, tests, native verification gaps and next work. The 0.2 report below is retained
+as historical evidence; its NOT IMPLEMENTED entries are not the current code status.

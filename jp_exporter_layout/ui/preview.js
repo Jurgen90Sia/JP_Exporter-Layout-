@@ -24,7 +24,8 @@
     var svg = doc.getElementById('drawing'), view = doc.getElementById('view');
     var timer, lastBounds, hasDrawing = false;
     var dimensions = doc.getElementById('dimensions'), scale = doc.getElementById('scale');
-    var registry = {export_dxf: true, save_snapshot: true, open_snapshot: false};
+    var registry = {export_dxf: true, save_snapshot: true, open_snapshot: false, analyze_materials: false, export_materials: false, export_sheet_svg: false, export_native: false};
+    var materials = doc.getElementById('materials');
     var fit = doc.getElementById('fit');
     function controls(busy) {
       button.disabled = busy;
@@ -48,6 +49,23 @@
       unlock();
       try {
         if (!result || !result.ok) throw new Error(result && result.error || 'Preview failed.');
+        if (result.analysis) {
+          if (materials) materials.textContent = '';
+          var a = result.analysis;
+          if (a.units !== 'mm' || a.area_units !== 'mm2' || !Array.isArray(a.materials) ||
+              ![a.group_count,a.component_instance_count,a.face_count].every(function (n) { return Number.isInteger(n) && n >= 0; }) ||
+              !Number.isFinite(a.front_area_mm2) || a.front_area_mm2 < 0) throw new Error('Invalid material report.');
+          var lines = [a.group_count + ' groups · ' + a.component_instance_count + ' instances · ' + a.face_count + ' faces',
+            'Front surfaces: ' + (a.front_area_mm2/1000000).toFixed(4) + ' m²'];
+          a.materials.forEach(function (m) {
+            if (typeof m.name !== 'string' || ![m.front_area_mm2,m.back_area_mm2].every(function (n) {
+              return Number.isFinite(n) && n >= 0;
+            })) throw new Error('Invalid material report.');
+            lines.push(m.name + ': front ' + (m.front_area_mm2/1000000).toFixed(4) +
+              ' m² · back ' + (m.back_area_mm2/1000000).toFixed(4) + ' m²');
+          });
+          if (materials) materials.textContent = lines.join('\n');
+        }
         if (result.message && !result.drawing) { status.textContent = result.message; return; }
         var drawing = result.drawing;
         validate(drawing);
@@ -112,7 +130,16 @@
         if (!bridge || typeof bridge.command !== 'function') { status.textContent = 'Open this command from SketchUp.'; return; }
         controls(true);
         timer = setTimeout(function () { unlock(); status.textContent = 'File operation is still waiting. Check SketchUp dialogs.'; },30000);
-        try { bridge.command(JSON.stringify({schema_version:1,command:name})); }
+        try {
+          var request = {schema_version:1,command:name};
+          if (name === 'export_sheet_svg' || name === 'export_native') {
+            request.paper = doc.getElementById('paper').value;
+            request.orientation = doc.getElementById('orientation').value;
+            var sheetScale = doc.getElementById('sheet_scale').value;
+            request.sheet_scale = sheetScale === 'auto' ? 'auto' : Number(sheetScale);
+          }
+          bridge.command(JSON.stringify(request));
+        }
         catch (error) { unlock(); status.textContent = error.message; }
       });
     });

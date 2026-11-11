@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.0 — Unreleased development
+
+- Add visible selected face/material analysis with transformed mm², front/back
+  separation, inherited paint and active editing context; connect JSON export.
+- Add physical ISO A0–A4 four-view wireframe SVG sheets and shared paper scaling.
+- Implement experimental native per-object source/LayOut/PDF adapters and UI,
+  temporary source transaction rollback checks and new-package-only publication.
+- Add JP-only source-bound runtime fixture, project identity/continuation prompt,
+  expanded official tutorial research and explicit open acceptance requirements.
+
+Native host output, dimensions, sections, PDF scale and portable references remain
+unverified/incomplete. Contract tests are not SketchUp/LayOut runtime proof.
+
 ## 0.2.0 — Unreleased development
 
 - Preserve original wireframe pipeline and add orthonormal isometric projection.

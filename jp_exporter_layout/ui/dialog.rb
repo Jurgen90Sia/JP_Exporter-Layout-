@@ -6,6 +6,10 @@ require_relative '../dimensions/overall'
 require_relative '../exporters/dxf'
 require_relative '../project_snapshot'
 require_relative '../projection/hidden_line'
+require_relative '../geometry/selection_analysis'
+require_relative '../exporters/sheet_svg'
+require_relative '../layout/package_export'
+require 'securerandom'
 module JPExporter
   module Layout
     class PreviewDialog
@@ -54,7 +58,7 @@ module JPExporter
         Diagnostics.report(error)
         send_result(ok: false, error: 'Preview failed. See jp_exporter_layout.log in the temporary directory.')
       end
-      COMMANDS = %w[export_dxf save_snapshot open_snapshot].freeze
+      COMMANDS = %w[export_dxf save_snapshot open_snapshot analyze_materials export_materials export_sheet_svg export_native].freeze
       def command(payload)
         raise ValidationError, 'Invalid command request.' unless payload.is_a?(String) && payload.bytesize <= 1024
         request = JSON.parse(payload)
@@ -62,7 +66,46 @@ module JPExporter
           raise ValidationError, 'Unsupported command.'
         end
         name = request['command']
-        if name == 'open_snapshot'
+        if name == 'export_native'
+          api = Native::DocumentExport.host_api
+          model = Sketchup.active_model
+          raise ValidationError, 'No active SketchUp model.' unless model
+          unless model.selection.to_a.length.between?(1,100) && model.selection.to_a.all? { |e| e.is_a?(Sketchup::Group) || e.is_a?(Sketchup::ComponentInstance) }
+            raise ValidationError, 'Select one to 100 groups or components for native export.'
+          end
+          parent = ::UI.select_directory(title:'Choose a parent folder for a new JP LayOut package')
+          return send_result(ok:true,message:'Export cancelled.') unless parent
+          directory = File.join(parent,"JP_Layout_#{Time.now.strftime('%Y%m%d_%H%M%S')}_#{SecureRandom.hex(4)}")
+          result = Native::PackageExport.call(model,directory,paper:request.fetch('paper','A3'),
+            orientation:request.fetch('orientation','landscape'),scale:request.fetch('sheet_scale','auto'),api:api)
+          send_result(ok:true,message:"Created experimental native package: #{result[:package_path]}. Keep drawing_Data alongside it; inspect all view crops and PDF scale before use.")
+        elsif name == 'export_sheet_svg'
+          model = Sketchup.active_model
+          raise ValidationError, 'No active SketchUp model.' unless model
+          raise ValidationError, 'Select geometry first.' if model.selection.empty?
+          source = Geometry::Extractor.new.call(model.selection.to_a,model.edit_transform)
+          content = Exporters::SheetSVG.generate(source,paper:request.fetch('paper','A3'),
+            orientation:request.fetch('orientation','landscape'),scale:request.fetch('sheet_scale','auto'))
+          path = ::UI.savepanel('Export scaled wireframe sheet SVG',nil,'sheet.svg')
+          return send_result(ok:true,message:'Save cancelled.') unless path
+          AtomicFile.write(path,content)
+          send_result(ok:true,message:'Saved four-view wireframe SVG sheet. Print at 100% to preserve paper scale.')
+        elsif %w[analyze_materials export_materials].include?(name)
+          model = Sketchup.active_model
+          raise ValidationError, 'No active SketchUp model.' unless model
+          raise ValidationError, 'Select faces, groups or components first.' if model.selection.empty?
+          active_path = model.respond_to?(:active_path) ? model.active_path : nil
+          inherited = (active_path || []).reverse.map(&:material).find { |material| material }
+          analysis = Geometry::SelectionAnalysis.new.call(model.selection.to_a,model.edit_transform,root_material:inherited)
+          if name == 'export_materials'
+            path = ::UI.savepanel('Export JP material surface report',nil,'materials.json')
+            return send_result(ok:true,message:'Save cancelled.') unless path
+            report = {project:'JP Exporter Layout',schema_version:1,analysis:analysis,
+                      policy:'Visible face surfaces; front and back separate. Not purchasing quantities or solid volume.'}
+            AtomicFile.write(path,JSON.pretty_generate(report))
+          end
+          send_result(ok:true,analysis:analysis,message:name == 'export_materials' ? 'Saved material surface report.' : 'Selection analysis complete.')
+        elsif name == 'open_snapshot'
           path = ::UI.openpanel('Open JP drawing snapshot',nil,'JP drawing|*.jpdraw||')
           return send_result(ok:true,message:'Open cancelled.') unless path
           drawing = ProjectSnapshot.open(path)
