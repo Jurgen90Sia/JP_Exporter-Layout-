@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'">
+<title>JP Exporter Layout</title><link rel="stylesheet" href="style.css"></head>
+<body><header><div><h1>JP Exporter Layout</h1><p>Selection drawings · sheets and materials</p></div><span class="badge">0.3 · Development</span></header>
+<main><aside><h2>Drawing source</h2><p>Select edges, faces, groups or components in SketchUp, then generate a preview.</p>
+<label for="view">View direction</label><select id="view">
+<option value="front">Front · X/Z</option><option value="rear">Rear</option><option value="left">Left</option>
+<option value="right">Right</option><option value="top">Top · X/Y</option><option value="bottom">Bottom</option>
+<option value="isometric">Isometric · wireframe</option></select>
+<label for="render_mode">Line mode</label><select id="render_mode">
+<option value="wireframe">Wireframe · original behavior</option>
+<option value="visible">Visible lines · opaque faces</option><option value="hidden">Visible + dashed hidden lines</option></select>
+<p class="note">Hidden-line modes treat selected faces as opaque. Transparency, silhouettes, soft-edge filtering and section planes are not applied. Select a small assembly (up to one million edge/triangle comparisons).</p>
+<label><input id="dimensions" type="checkbox"> Overall dimensions · orthographic mm</label>
+<label for="scale">Annotation scale (model:paper)</label><select id="scale">
+<option value="1">1:1</option><option value="0.5">1:2</option><option value="0.2">1:5</option>
+<option value="0.1" selected>1:10</option><option value="0.05">1:20</option><option value="0.04">1:25</option>
+<option value="0.02">1:50</option><option value="0.01">1:100</option></select>
+<button id="preview" type="button">Preview current selection</button>
+<button id="fit" type="button" disabled>Fit drawing</button>
+<button id="export_dxf" type="button" disabled>Export drawing DXF</button>
+<button id="save_snapshot" type="button" disabled>Save drawing snapshot</button>
+<button id="open_snapshot" type="button">Open drawing snapshot</button>
+<h2>Four-view paper sheet</h2>
+<label for="paper">ISO paper</label><select id="paper"><option>A0</option><option>A1</option><option>A2</option><option selected>A3</option><option>A4</option></select>
+<label for="orientation">Orientation</label><select id="orientation"><option value="landscape">Landscape</option><option value="portrait">Portrait</option></select>
+<label for="sheet_scale">Sheet scale</label><select id="sheet_scale"><option value="auto">Automatic common scale</option><option value="1">1:1</option><option value="0.5">1:2</option><option value="0.2">1:5</option><option value="0.1">1:10</option><option value="0.05">1:20</option><option value="0.02">1:50</option><option value="0.01">1:100</option></select>
+<button id="export_sheet_svg" type="button">Export current selection sheet SVG</button>
+<p class="note">Front, right, top and isometric wireframe, centered at one scale. Combined selection on one sheet. Print at 100%. SVG sheets have no native LayOut links, sections or dimensions.</p>
+<button id="export_native" type="button">Experimental · native LayOut + PDF</button>
+<p class="note">Selected groups/components only, one page per object with four vector views. Creates a new package in your chosen folder. Keep drawing_Data alongside the document. No native dimensions or sections yet. This adapter still needs SketchUp runtime, camera-crop, PDF-scale and moved-folder checks.</p>
+<h2>Selection materials</h2>
+<button id="analyze_materials" type="button">Analyze current selection</button>
+<button id="export_materials" type="button">Export material report JSON</button>
+<pre id="materials" aria-live="polite"></pre>
+<p class="note">Visible face surfaces in m². Front and back are separate; instance paint is inherited. These are not purchasing quantities, panel nesting or solid volumes.</p>
+<p class="note">Snapshots store this drawing, not linked model objects. DXF dimensions are editable lines/text, not CAD dimension entities. Annotation scale sets symbol sizes; DXF geometry remains full-size mm.</p>
+<p class="note">Wireframe preview includes occluded edges. It is not a hidden-line technical drawing. Model geometry is never modified.</p></aside>
+<section class="canvas" aria-label="Drawing preview"><svg id="drawing" role="img" aria-label="Projected geometry" xmlns="http://www.w3.org/2000/svg"></svg></section></main>
+<footer id="status" role="status" aria-live="polite">Ready. Select geometry in SketchUp.</footer>
+<script src="preview.js"></script></body></html>

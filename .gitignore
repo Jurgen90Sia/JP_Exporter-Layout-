@@ -1,0 +1,19 @@
+# Local tools and generated artifacts
+.bundle/
+vendor/bundle/
+node_modules/
+coverage/
+tmp/
+dist/
+*.rbz
+*.log
+.DS_Store
+Thumbs.db
+.env
+.env.*
+!.env.example
+.idea/
+.vscode/
+
+__pycache__/
+*.pyc
